@@ -8,7 +8,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # Load Stable Diffusion model
 pipe = StableDiffusionPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5-inpainting",
+    "runwayml/stable-diffusion-v1-5",
     torch_dtype=torch.float32 if device == "cuda" else torch.float32
 )
 pipe = pipe.to(device)
