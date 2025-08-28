@@ -1,3 +1,14 @@
+---
+title: "PersonaGen"
+emoji: "🧠"
+colorFrom: "blue"
+colorTo: "green"
+sdk: "gradio"
+sdk_version: "3.49"
+app_file: "app.py"
+pinned: true
+---
+
 # PersonaGen – AI-Generated Portraits with Stable Diffusion
 
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
