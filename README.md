@@ -25,19 +25,21 @@ The system takes a text prompt as input and produces high-quality faces that can
 
 ## 🗂️ Repository Structure  
 
+```text
 PersonaGen/
-├── app.py               # Gradio interface (main entry point)
-├── requirements.txt     # Dependencies for Hugging Face Space
-├── README.md            # Project documentation
-├── .gitignore           
-├── examples/            
-│   ├── sample1.png
-│   ├── sample2.png
-│   └── ...
-├── notebooks/           
-│   └── training.ipynb
-└── utils/               
-    └── preprocessing.py
+├── app.py # Gradio interface (main entry point)
+├── requirements.txt # Dependencies for Hugging Face Space
+├── README.md # Project documentation
+├── .gitignore
+├── examples/
+│ ├── sample1.png
+│ ├── sample2.png
+│ └── ...
+├── notebooks/
+│ └── training.ipynb
+└── utils/
+└── preprocessing.py
+```
 
 ---
 
