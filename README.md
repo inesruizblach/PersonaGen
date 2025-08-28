@@ -1,7 +1,5 @@
 # PersonaGen – AI-Generated Portraits with Stable Diffusion
 
-# 🧠 PersonaGen – AI-Generated Portraits with Stable Diffusion
-
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Hugging Face Demo](https://img.shields.io/badge/demo-Hugging%20Face-orange.svg)](https://huggingface.co/spaces/inesruizblach/PersonaGen)
