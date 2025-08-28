@@ -6,14 +6,10 @@ import os
 # Detect device (GPU if available, otherwise CPU)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Hugging Face token (from Space secrets)
-hf_token = os.getenv("HF_TOKEN")
-
 # Load Stable Diffusion model
 pipe = StableDiffusionPipeline.from_pretrained(
     "runwayml/stable-diffusion-v1-5-inpainting",
-    torch_dtype=torch.float32 if device == "cuda" else torch.float32,
-    use_auth_token=hf_token
+    torch_dtype=torch.float32 if device == "cuda" else torch.float32
 )
 pipe = pipe.to(device)
 
