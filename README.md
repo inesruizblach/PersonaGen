@@ -16,31 +16,28 @@ The system takes a text prompt as input and produces high-quality faces that can
 ---
 
 ## 🎯 Features  
-- 🧑‍🎨 Generate photorealistic or stylised portraits from text prompts  
-- 🎚️ Control over **age, gender, mood, and style**  
-- 🎨 Artistic filters: *watercolour, comic, cyberpunk, oil painting*  
-- ☁️ Deployed with **Gradio** on Hugging Face Spaces  
+- Generate photorealistic or stylised portraits from text prompts  
+- Control over **age, gender, mood, and style**  
+- Artistic filters: *watercolour, comic, cyberpunk, oil painting*  
+- Deployed with **Gradio** on Hugging Face Spaces  
 
 ---
 
 ## 🗂️ Repository Structure  
-PersonaGen/
-│── app.py # Gradio interface (main entry point)
-│── requirements.txt # Dependencies for Hugging Face Space
-│── README.md # Project documentation
-│── .gitignore # Ignore cache, venv, etc.
-│
-├── examples/ # Example generated portraits
-│ ├── sample1.png
-│ ├── sample2.png
-│ └── ...
-│
-├── notebooks/ # Optional training/fine-tuning notebooks
-│ └── training.ipynb
-│
-└── utils/ # Helper scripts (optional)
-└── preprocessing.py
 
+PersonaGen/
+├── app.py               # Gradio interface (main entry point)
+├── requirements.txt     # Dependencies for Hugging Face Space
+├── README.md            # Project documentation
+├── .gitignore           
+├── examples/            
+│   ├── sample1.png
+│   ├── sample2.png
+│   └── ...
+├── notebooks/           
+│   └── training.ipynb
+└── utils/               
+    └── preprocessing.py
 
 ---
 
