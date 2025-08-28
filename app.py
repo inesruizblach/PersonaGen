@@ -11,8 +11,8 @@ hf_token = os.getenv("HF_TOKEN")
 
 # Load Stable Diffusion model
 pipe = StableDiffusionPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5",
-    torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+    "runwayml/stable-diffusion-v1-5-inpainting",
+    torch_dtype=torch.float32 if device == "cuda" else torch.float32,
     use_auth_token=hf_token
 )
 pipe = pipe.to(device)
