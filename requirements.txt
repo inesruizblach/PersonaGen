@@ -3,4 +3,4 @@ transformers
 diffusers
 accelerate
 safetensors
-gradio
+gradio==4.44.1
