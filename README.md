@@ -37,18 +37,18 @@ The system takes a text prompt as input and produces high-quality faces that can
 
 ```text
 PersonaGen/
-├── app.py # Gradio interface (main entry point)
-├── requirements.txt # Dependencies for Hugging Face Space
-├── README.md # Project documentation
+├── app.py                  # Gradio interface (main entry point)
+├── requirements.txt        # Dependencies for Hugging Face Space
+├── README.md               # Project documentation
 ├── .gitignore
-├── examples/
-│ ├── sample1.png
-│ ├── sample2.png
-│ └── ...
-├── notebooks/
-│ └── training.ipynb
-└── utils/
-└── preprocessing.py
+├── examples/               # Pre-generated demo portraits
+│   ├── adult_female.png
+│   ├── young_child.png
+│   ├── senior_male.png
+│   ├── domestic_cat.png
+│   └── dragon_fantasy.png
+├── notebooks/              # Notebook demo for generating examples
+    └── demo_portraits.ipynb
 ```
 
 ---
@@ -62,17 +62,40 @@ git clone https://github.com/yourusername/PersonaGen.git
 cd PersonaGen
 pip install -r requirements.txt
 ```
-Run the Gradio app locally:
+
+Or if running with conda env:
+```bash
+conda create -n personagen python=3.10 -y
+conda activate personagen
+pip install -r requirements.txt
+```
+
+### Run the Gradio app locally:
 ```bash
 python app.py
 ```
 
+### Example: demo notebook to generate sample images
+
+1. Open Jupyter Notebook:
+
+```bash
+jupyter notebook notebooks/demo_portraits.ipynb
+```
+2. Run all cells.
+3. Example images will be saved automatically to examples/
+
 ---
 
-## 🖼️ Example Usage
-Prompt:
-Hyper-realistic portrait of a smiling 30-year-old woman, studio lighting, professional photography
+## 🖼️ Example Usage with Results & Metrics 📊
 
-Output:
+| Output File         | Prompt                                       | Steps | Runtime 
+| ------------------- | -------------------------------------------- | ----- | ------- 
+| `woman_blonde.png`  | Portrait of woman with blonde hair           | 25    | 
+| `smiling_kid.png`   | Portrait of a young boy smiling              | 25    | 
+| `small_dog.png`     | Portrait of a yorkshire terrier              | 25    | 
+| `dragon_fantasy.png`| Portrait of a fantasy dragon, vibrant colors | 25    |
 
-## 📊 Results & Metrics
+**Notes:**
+- `Steps` = number of inference steps (default: 25).  
+- `Runtime` = measured wall-clock time per image on CPU (approx).  

@@ -3,30 +3,30 @@ from diffusers import StableDiffusionPipeline
 import torch
 import os
 
-# Detect device (GPU if available, otherwise CPU)
-device = "cuda" if torch.cuda.is_available() else "cpu"
+# Load Stable Diffusion model pipeline
+def load_pipeline():
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    pipe = StableDiffusionPipeline.from_pretrained(
+        "segmind/SSD-1B",
+        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
+    )
+    return pipe.to(device)
 
-# Load Stable Diffusion model
-pipe = StableDiffusionPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5",
-    torch_dtype=torch.float32 if device == "cuda" else torch.float32
-)
-pipe = pipe.to(device)
+pipe = load_pipeline()
 
 def generate_face(prompt, guidance=7.5, steps=25):
-    """Generate a face image from a text prompt"""
-    image = pipe(
-        prompt,
-        guidance_scale=guidance,
-        num_inference_steps=steps
-    ).images[0]
+    """Generate a synthetic human face based on the text prompt."""
+    image = pipe(prompt, guidance_scale=guidance, num_inference_steps=steps).images[0]
     return image
 
-# Set up Gradio interface
+# Gradio interface
 face_demo = gr.Interface(
     fn=generate_face,
     inputs=[
-        gr.Textbox(label="Prompt", placeholder="e.g. Portrait of a 25-year-old woman, cinematic style"),
+        gr.Textbox(
+            label="Prompt", 
+            placeholder="e.g. Portrait of a 25-year-old woman, cinematic style"
+        ),
         gr.Slider(1, 15, value=7.5, step=0.5, label="Guidance Scale"),
         gr.Slider(10, 50, value=25, step=5, label="Inference Steps")
     ],
@@ -35,6 +35,5 @@ face_demo = gr.Interface(
     description="Enter a text prompt to generate a synthetic human face."
 )
 
-# Launch the Gradio app
 if __name__ == "__main__":
     face_demo.launch()
