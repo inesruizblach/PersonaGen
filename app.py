@@ -7,7 +7,7 @@ from PIL import Image
 def load_pipeline():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     pipe = StableDiffusionPipeline.from_pretrained(
-        "SG161222/Realistic_Vision_V2.0",
+        "runwayml/stable-diffusion-v1-5",
         torch_dtype=torch.float32,
     )
     pipe.enable_attention_slicing()  # Save memory
