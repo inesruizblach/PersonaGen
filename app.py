@@ -16,7 +16,7 @@ pipe = load_pipeline()
 
 def generate_face(prompt, guidance=7.5, steps=25):
     """Generate a synthetic human face based on the text prompt."""
-    image = pipe(prompt, guidance_scale=guidance, num_inference_steps=steps).images[0]
+    image = pipe(prompt, guidance_scale=guidance, num_inference_steps=steps, added_cond_kwargs={}).images[0]
     return image
 
 # Gradio interface
