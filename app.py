@@ -7,7 +7,7 @@ from PIL import Image
 def load_pipeline():
     device = "cuda" if torch.cuda.is_available() else "cpu"
     pipe = StableDiffusionPipeline.from_pretrained(
-        "runwayml/stable-diffusion-v1-5",
+        "stabilityai/stable-diffusion-2-base",
         torch_dtype=torch.float32,
     )
     pipe.enable_attention_slicing()  # Save memory
@@ -43,6 +43,7 @@ def generate_face(prompt, guidance=7.5, steps=25, negative_prompt="", init_image
             negative_prompt=negative_prompt or None,
             guidance_scale=guidance,
             num_inference_steps=steps,
+            height=256, width=256
         ).images[0]
     return image
 
