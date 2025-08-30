@@ -1,86 +1,65 @@
 import gradio as gr
+from diffusers import StableDiffusionPipeline
 import torch
-from diffusers import DiffusionPipeline
 
-# CPU device & dtype
+# Model config
+MODEL_ID = "stabilityai/sd-turbo"  # CPU-friendly version
 DEVICE = "cpu"
 DTYPE = torch.float32  # float32 for CPU
-
-# Model and LoRA
-BASE_MODEL = "Qwen/Qwen-Image"
-LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
-TRIGGER_WORD = "Synthetic Face"
 
 # Cache pipeline
 PIPELINE = None
 
-# Positive prompt enhancement
-POSITIVE_MAGIC = ", Ultra HD, 4K, cinematic composition."
-
-# Fixed 16:9 aspect ratio
-WIDTH, HEIGHT = 512, 288
-
-def load_pipeline(apply_lora=False):
+def load_pipeline():
     """
-    Load and cache the Qwen CPU text-to-image pipeline.
-    Optionally apply LoRA weights for synthetic face enhancement.
-
-    Args:
-        apply_lora (bool): If True, load LoRA weights from Hugging Face repo.
-
+    Load and cache the Stable Diffusion CPU pipeline.
+    
     Returns:
-        DiffusionPipeline: Loaded pipeline.
+        StableDiffusionPipeline: Loaded pipeline on CPU.
     """
     global PIPELINE
     if PIPELINE is None:
-        PIPELINE = DiffusionPipeline.from_pretrained(
-            BASE_MODEL,
+        PIPELINE = StableDiffusionPipeline.from_pretrained(
+            MODEL_ID,
             torch_dtype=DTYPE
         ).to(DEVICE)
-        if apply_lora:
-            try:
-                PIPELINE.load_lora_weights(LORA_REPO)
-            except Exception as e:
-                print(f"⚠️ Failed to load LoRA weights: {e}")
+        # Enable attention slicing to reduce memory footprint
+        PIPELINE.enable_attention_slicing()
     return PIPELINE
 
-def generate_image(prompt, steps, cfg_scale, use_lora):
+def generate_image(prompt, steps, guidance):
     """
-    Generate an image from a text prompt using the Qwen CPU model.
+    Generate an image from a text prompt using Stable Diffusion CPU pipeline.
 
     Args:
         prompt (str): Text description of the image.
         steps (int): Number of inference steps.
-        cfg_scale (float): Guidance scale.
-        use_lora (bool): Whether to apply synthetic face LoRA weights.
+        guidance (float): CFG scale for generation.
 
     Returns:
         PIL.Image: Generated image.
     """
-    pipe = load_pipeline(apply_lora=use_lora)
-    final_prompt = f"{TRIGGER_WORD}, {prompt}" if use_lora else prompt
+    pipe = load_pipeline()
     image = pipe(
-        prompt=final_prompt + POSITIVE_MAGIC,
-        negative_prompt="",
-        width=WIDTH,
-        height=HEIGHT,
+        prompt=prompt,
+        guidance_scale=guidance,
         num_inference_steps=steps,
-        true_cfg_scale=cfg_scale
+        height=256,
+        width=256
     ).images[0]
     return image
 
-# Gradio UI
+# Gradio interface
 iface = gr.Interface(
     fn=generate_image,
     inputs=[
         gr.Textbox(label="Prompt", placeholder="Describe your image..."),
         gr.Slider(10, 50, value=25, step=5, label="Inference Steps"),
-        gr.Slider(1.0, 8.0, value=4.0, step=0.5, label="CFG Scale"),
-        gr.Checkbox(label="Apply Synthetic Face LoRA", value=False)
+        gr.Slider(1.0, 15.0, value=7.5, step=0.5, label="Guidance Scale")
     ],
     outputs=gr.Image(type="pil", label="Generated Image"),
-    title="PersonaGen – Qwen CPU Text-to-Image with LoRA",
-    description="Generate synthetic human faces using Qwen CPU model. Optionally apply LoRA weights for enhanced face generation."
+    title="PersonaGen – CPU Stable Diffusion",
+    description="Generate synthetic images using Stable Diffusion on CPU (text-to-image only)."
 )
 
 if __name__ == "__main__":
