@@ -11,7 +11,8 @@ def load_text2img():
         "runwayml/stable-diffusion-v1-5",
         torch_dtype=torch.float32,
     )
-    pipe.enable_attention_slicing()  # reduce memory usage
+    if torch.cuda.is_available():
+        pipe.enable_attention_slicing()  # reduce memory usage
     return pipe.to(device)
 
 text_pipe = load_text2img()
