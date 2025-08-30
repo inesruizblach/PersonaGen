@@ -26,7 +26,7 @@ def ensure_pil_image(img):
         raise ValueError("⚠️ Unsupported image format. Please upload PNG or JPEG.")
 
 
-def load_pipeline(img2img=False, lora_repo=None):
+def load_pipeline(img2img=False, use_lora=None):
     """
     Load and cache the correct pipeline.
     If img2img=True, load StableDiffusionImg2ImgPipeline.
@@ -50,11 +50,11 @@ def load_pipeline(img2img=False, lora_repo=None):
     pipe = PIPELINES[key]
 
     # Apply LoRA if a repo is given
-    if lora_repo:
+    if use_lora:
         try:
-            pipe.unet.load_lora_weights(lora_repo)
+            pipe.unet.load_lora_weights(MODEL_ID)
         except Exception as e:
-            print(f"⚠️ Failed to load LoRA weights from {lora_repo}: {e}")
+            print(f"⚠️ Failed to load LoRA weights from {MODEL_ID}: {e}")
 
     return pipe
 
@@ -67,7 +67,7 @@ def generate_image(prompt, guidance, steps, init_image=None, strength=0.7, use_l
     """
     if init_image:
         init_image = ensure_pil_image(init_image)
-        pipe = load_pipeline(img2img=True, lora_repo=lora_repo if use_lora else None)
+        pipe = load_pipeline(img2img=True, use_lora=None)
         result = pipe(
             prompt=prompt,
             init_image=init_image,
@@ -76,7 +76,7 @@ def generate_image(prompt, guidance, steps, init_image=None, strength=0.7, use_l
             num_inference_steps=steps,
         ).images[0]
     else:
-        pipe = load_pipeline(img2img=False, lora_repo=lora_repo if use_lora else None)
+        pipe = load_pipeline(img2img=False, use_lora=None)
         result = pipe(
             prompt=prompt,
             guidance_scale=guidance,
@@ -97,7 +97,6 @@ iface = gr.Interface(
         gr.Image(label="Init Image (optional)", type="pil"),
         gr.Slider(0.1, 1.0, value=0.7, step=0.05, label="Strength (for image-to-image)"),
         gr.Checkbox(label="Use LoRA weights", value=False),
-        gr.Textbox(label="LoRA HF Repo (optional)", placeholder="e.g. someuser/sd-lora-face")
     ],
     outputs=gr.Image(type="pil", label="Generated Portrait"),
     title="PersonaGen – AI Portrait Generator",
