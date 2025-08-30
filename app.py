@@ -5,7 +5,7 @@ import torch
 # Model config
 MODEL_ID = "stabilityai/sd-turbo"  # CPU-friendly version
 DEVICE = "cpu"
-DTYPE = torch.float32  # float32 for CPU
+DTYPE = torch.float16  # float32 for CPU
 
 # Cache pipeline
 PIPELINE = None
