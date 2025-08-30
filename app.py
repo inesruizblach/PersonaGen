@@ -3,51 +3,75 @@ from diffusers import StableDiffusionPipeline, StableDiffusionImg2ImgPipeline
 import torch
 from PIL import Image
 
-# Load Stable Diffusion pipeline (CPU-friendly)
-def load_pipeline():
+# --- Load text-to-image pipeline (always needed) ---
+def load_text2img():
+    """Initialize the base text-to-image Stable Diffusion pipeline."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
     pipe = StableDiffusionPipeline.from_pretrained(
         "runwayml/stable-diffusion-v1-5",
         torch_dtype=torch.float32,
     )
-    pipe.enable_attention_slicing()  # Save memory
+    pipe.enable_attention_slicing()  # reduce memory usage
     return pipe.to(device)
 
-pipe = load_pipeline()
+text_pipe = load_text2img()
 
-# To-Do: LoRA weights
-# pipe.unet.load_lora_weights("path/to/lora_weights")
 
+# --- Image-to-image function (loaded only when needed) ---
+def run_img2img(prompt, negative_prompt, init_image, strength, guidance, steps, device):
+    """
+    Run image-to-image generation with Stable Diffusion.
+    Loads the Img2Img pipeline only when required.
+    """
+    # Ensure init_image is a PIL Image
+    if not isinstance(init_image, Image.Image):
+        init_image = Image.fromarray(init_image)
+
+    # Lazy-load img2img pipeline
+    img_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
+        "runwayml/stable-diffusion-v1-5",
+        torch_dtype=torch.float32,
+    ).to(device)
+    img_pipe.enable_attention_slicing()
+
+    # Generate variation from init_image
+    result = img_pipe(
+        prompt=prompt,
+        negative_prompt=negative_prompt or None,
+        image=init_image,
+        strength=strength,
+        guidance_scale=guidance,
+        num_inference_steps=steps,
+    ).images[0]
+
+    # Free pipeline memory
+    del img_pipe
+    torch.cuda.empty_cache() if torch.cuda.is_available() else None  
+
+    return result
+
+
+# --- Unified generation function ---
 def generate_face(prompt, guidance=7.5, steps=25, negative_prompt="", init_image=None, strength=0.7):
-    """Generate a synthetic human face with optional image-to-image conditioning."""
-    if init_image:
-        # Convert to PIL if not already
-        if not isinstance(init_image, Image.Image):
-            init_image = Image.fromarray(init_image)
-        img_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-            "runwayml/stable-diffusion-v1-5",
-            torch_dtype=torch.float32,
-        ).to(pipe.device)
-        img_pipe.enable_attention_slicing()
-        image = img_pipe(
-            prompt=prompt,
-            negative_prompt=negative_prompt or None,
-            init_image=init_image,
-            strength=strength,
-            guidance_scale=guidance,
-            num_inference_steps=steps,
-        ).images[0]
+    """
+    Generate an AI portrait.
+    - If `init_image` is provided → image-to-image mode.
+    - Otherwise → pure text-to-image.
+    """
+    device = text_pipe.device
+    if init_image is not None:
+        return run_img2img(prompt, negative_prompt, init_image, strength, guidance, steps, device)
     else:
-        image = pipe(
+        return text_pipe(
             prompt=prompt,
             negative_prompt=negative_prompt or None,
             guidance_scale=guidance,
             num_inference_steps=steps,
-            height=256, width=256
+            height=256, width=256,  # lower res = faster on CPU
         ).images[0]
-    return image
 
-# Gradio interface
+
+# --- Gradio interface ---
 iface = gr.Interface(
     fn=generate_face,
     inputs=[
