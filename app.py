@@ -26,7 +26,7 @@ def ensure_pil_image(img):
         raise ValueError("⚠️ Unsupported image format. Please upload PNG or JPEG.")
 
 
-def load_pipeline(img2img=False, use_lora=None):
+def load_pipeline(img2img=False):
     """
     Load and cache the correct pipeline.
     If img2img=True, load StableDiffusionImg2ImgPipeline.
@@ -49,17 +49,16 @@ def load_pipeline(img2img=False, use_lora=None):
 
     pipe = PIPELINES[key]
 
-    # Apply LoRA if a repo is given
-    if use_lora:
-        try:
-            pipe.unet.load_lora_weights(MODEL_ID)
-        except Exception as e:
-            print(f"⚠️ Failed to load LoRA weights from {MODEL_ID}: {e}")
+    # Apply LoRA weights
+    try:
+        pipe.unet.load_lora_weights(MODEL_ID)
+    except Exception as e:
+        print(f"⚠️ Failed to load LoRA weights from {MODEL_ID}: {e}")
 
     return pipe
 
 
-def generate_image(prompt, guidance, steps, init_image=None, strength=0.7, use_lora=False, lora_repo=None):
+def generate_image(prompt, guidance, steps, init_image=None, strength=0.7):
     """
     Generate an image from a prompt (text-to-image).
     If init_image is provided, run image-to-image instead.
@@ -67,7 +66,7 @@ def generate_image(prompt, guidance, steps, init_image=None, strength=0.7, use_l
     """
     if init_image:
         init_image = ensure_pil_image(init_image)
-        pipe = load_pipeline(img2img=True, use_lora=None)
+        pipe = load_pipeline(img2img=True)
         result = pipe(
             prompt=prompt,
             init_image=init_image,
@@ -76,7 +75,7 @@ def generate_image(prompt, guidance, steps, init_image=None, strength=0.7, use_l
             num_inference_steps=steps,
         ).images[0]
     else:
-        pipe = load_pipeline(img2img=False, use_lora=None)
+        pipe = load_pipeline(img2img=False)
         result = pipe(
             prompt=prompt,
             guidance_scale=guidance,
@@ -95,8 +94,7 @@ iface = gr.Interface(
         gr.Slider(1, 15, value=7.5, step=0.5, label="Guidance Scale"),
         gr.Slider(10, 50, value=25, step=5, label="Inference Steps"),
         gr.Image(label="Init Image (optional)", type="pil"),
-        gr.Slider(0.1, 1.0, value=0.7, step=0.05, label="Strength (for image-to-image)"),
-        gr.Checkbox(label="Use LoRA weights", value=False),
+        gr.Slider(0.1, 1.0, value=0.7, step=0.05, label="Strength (for image-to-image)")
     ],
     outputs=gr.Image(type="pil", label="Generated Portrait"),
     title="PersonaGen – AI Portrait Generator",
