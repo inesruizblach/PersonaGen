@@ -12,7 +12,7 @@ DTYPE = torch.float32  # CPU-friendly
 PIPELINES = {"txt2img": None, "img2img": None}
 
 # Model identifiers
-TXT2IMG_MODEL = "lightx2v/Qwen-Image-Lightning"  # lightweight CPU model
+TXT2IMG_MODEL = "Qwen/Qwen-Image-2B-Lite"  # lightweight CPU model
 IMG2IMG_MODEL = "Qwen/Qwen-Image-Edit"
 
 # Positive prompt enhancement
