@@ -4,94 +4,81 @@ import torch
 from diffusers import DiffusionPipeline, QwenImageEditPipeline
 import numpy as np
 
-# Device & dtype selection
-device = "cuda" if torch.cuda.is_available() else "cpu"
-txt2img_dtype = torch.bfloat16 if device == "cuda" else torch.float32
-img2img_dtype = torch.bfloat16 if device == "cuda" else torch.float32
+# Device and data type
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DTYPE = torch.float32  # CPU-friendly
 
-# Cache pipelines to avoid reloading
-PIPELINES = {
-    "txt2img": None,
-    "img2img": None
-}
+# Cache pipelines so we don't reload every call
+PIPELINES = {"txt2img": None, "img2img": None}
 
-# Constants
-TXT2IMG_MODEL = "Qwen/Qwen-Image"
+# Model identifiers
+TXT2IMG_MODEL = "lightx2v/Qwen-Image-Lightning"  # lightweight CPU model
 IMG2IMG_MODEL = "Qwen/Qwen-Image-Edit"
+
+# Positive prompt enhancement
 POSITIVE_MAGIC = ", Ultra HD, 4K, cinematic composition."
+
+# Predefined aspect ratios
 ASPECT_RATIOS = {
-    "1:1": (1328, 1328),
-    "16:9": (1664, 928),
-    "9:16": (928, 1664),
-    "4:3": (1472, 1140),
-    "3:4": (1140, 1472),
-    "3:2": (1584, 1056),
-    "2:3": (1056, 1584),
+    "1:1": (512, 512),
+    "16:9": (512, 288),
+    "9:16": (288, 512),
+    "4:3": (512, 384),
+    "3:4": (384, 512),
+    "3:2": (512, 341),
+    "2:3": (341, 512),
 }
 
-# Helper Functions
 def ensure_pil_image(img):
     """
-    Ensure that the input is converted to a valid RGB PIL.Image.
-    Supports PIL.Image, NumPy arrays, and common image formats like JPG/PNG.
-
-    Args:
-        img (PIL.Image.Image | np.ndarray): Input image.
-
-    Returns:
-        PIL.Image.Image: Converted RGB image.
-
-    Raises:
-        ValueError: If input is not a supported format.
+    Convert input to RGB PIL.Image.
+    Supports PIL.Image, NumPy arrays, and JPG/PNG uploads.
     """
     if isinstance(img, Image.Image):
         return img.convert("RGB")
-    elif isinstance(img, (np.ndarray,)):
+    elif isinstance(img, np.ndarray):
         return Image.fromarray(img).convert("RGB")
     else:
         raise ValueError("Unsupported image format. Upload PNG/JPEG or PIL.Image.")
 
 def load_pipeline(txt2img=True):
     """
-    Load and cache the correct pipeline.
-
-    Args:
-        txt2img (bool): True for text-to-image, False for image-to-image.
-
-    Returns:
-        diffusers.Pipeline: Loaded Stable Diffusion or QwenImageEdit pipeline.
+    Load and cache CPU-friendly pipelines:
+    - txt2img=True -> Qwen/Qwen-Image-Lightning
+    - txt2img=False -> Qwen/Qwen-Image-Edit
     """
     key = "txt2img" if txt2img else "img2img"
     if PIPELINES[key] is None:
         if txt2img:
             PIPELINES[key] = DiffusionPipeline.from_pretrained(
                 TXT2IMG_MODEL,
-                torch_dtype=txt2img_dtype
-            ).to(device)
+                torch_dtype=DTYPE
+            ).to(DEVICE)
         else:
             PIPELINES[key] = QwenImageEditPipeline.from_pretrained(
                 IMG2IMG_MODEL,
-                torch_dtype=img2img_dtype
-            ).to(device)
+                torch_dtype=DTYPE
+            ).to(DEVICE)
             PIPELINES[key].set_progress_bar_config(disable=None)
     return PIPELINES[key]
 
 def generate_image(prompt, steps, aspect, cfg_scale, seed, init_image=None):
     """
-    Generate an image from a text prompt or using an input image.
-
+    Generate an image from a text prompt or an initial image.
+    
     Args:
-        prompt (str): The text prompt describing the image.
+        prompt (str): Text describing the image.
         steps (int): Number of inference steps.
-        aspect (str): Aspect ratio key for text-to-image.
-        cfg_scale (float): CFG scale for classifier-free guidance.
-        seed (int): Random seed (-1 = random).
-        init_image (PIL.Image.Image | np.ndarray | None): Optional image for image-to-image.
-
+        aspect (str): Aspect ratio key (for text-to-image only).
+        cfg_scale (float): Guidance scale for generation.
+        seed (int): Random seed; -1 for random.
+        init_image (PIL.Image, optional): Input image for image-to-image.
+    
     Returns:
-        PIL.Image.Image: Generated image.
+        PIL.Image: Generated image.
     """
-    generator = torch.Generator(device=device).manual_seed(seed) if seed > -1 else None
+    # Set random seed for reproducibility
+    generator = torch.Generator(device=DEVICE).manual_seed(seed) if seed > -1 else None
 
     if init_image:
         # Image-to-image mode
@@ -122,20 +109,20 @@ def generate_image(prompt, steps, aspect, cfg_scale, seed, init_image=None):
 
     return image
 
-# Gradio Interface
+# Gradio interface
 iface = gr.Interface(
     fn=generate_image,
     inputs=[
         gr.Textbox(label="Prompt", placeholder="Describe your image..."),
-        gr.Slider(10, 100, value=50, step=5, label="Inference Steps"),
+        gr.Slider(10, 50, value=25, step=5, label="Inference Steps"),
         gr.Dropdown(list(ASPECT_RATIOS.keys()), value="16:9", label="Aspect Ratio (txt2img only)"),
         gr.Slider(1.0, 8.0, value=4.0, step=0.5, label="CFG Scale"),
         gr.Number(value=-1, label="Seed (-1 = random)"),
         gr.Image(label="Init Image (optional, triggers image-to-image)", type="pil")
     ],
     outputs=gr.Image(type="pil", label="Generated Image"),
-    title="PersonaGen – Qwen AI Image Generator",
-    description="Text-to-image with Qwen/Qwen-Image, or image-to-image with Qwen/Qwen-Image-Edit. Upload an image for image editing mode."
+    title="PersonaGen – Qwen CPU Image Generator",
+    description="Lightweight CPU-friendly Qwen: text-to-image or image-to-image. Upload an image to trigger editing mode."
 )
 
 if __name__ == "__main__":
