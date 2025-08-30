@@ -2,40 +2,33 @@ import gradio as gr
 from diffusers import StableDiffusionPipeline
 import torch
 
-# Model config
-MODEL_ID = "stabilityai/sd-turbo"  # CPU-friendly version
+MODEL_ID = "stabilityai/sd-turbo"
 DEVICE = "cpu"
-DTYPE = torch.float16  # float32 for CPU
 
-# Cache pipeline
 PIPELINE = None
 
 def load_pipeline():
     """
-    Load and cache the Stable Diffusion CPU pipeline.
-    
+    Load and cache Stable Diffusion pipeline for CPU.
     Returns:
-        StableDiffusionPipeline: Loaded pipeline on CPU.
+        StableDiffusionPipeline: ready-to-use pipeline.
     """
     global PIPELINE
     if PIPELINE is None:
         PIPELINE = StableDiffusionPipeline.from_pretrained(
             MODEL_ID,
-            torch_dtype=DTYPE
+            torch_dtype=torch.float32
         ).to(DEVICE)
-        # Enable attention slicing to reduce memory footprint
         PIPELINE.enable_attention_slicing()
     return PIPELINE
 
 def generate_image(prompt, steps, guidance):
     """
-    Generate an image from a text prompt using Stable Diffusion CPU pipeline.
-
+    Generate an image from a text prompt using CPU.
     Args:
-        prompt (str): Text description of the image.
-        steps (int): Number of inference steps.
-        guidance (float): CFG scale for generation.
-
+        prompt (str): Description of the image.
+        steps (int): Inference steps.
+        guidance (float): CFG scale.
     Returns:
         PIL.Image: Generated image.
     """
@@ -49,7 +42,6 @@ def generate_image(prompt, steps, guidance):
     ).images[0]
     return image
 
-# Gradio interface
 iface = gr.Interface(
     fn=generate_image,
     inputs=[
@@ -59,7 +51,7 @@ iface = gr.Interface(
     ],
     outputs=gr.Image(type="pil", label="Generated Image"),
     title="PersonaGen – CPU Stable Diffusion",
-    description="Generate synthetic images using Stable Diffusion on CPU (text-to-image only)."
+    description="CPU-friendly text-to-image generation using Stable Diffusion Turbo."
 )
 
 if __name__ == "__main__":
