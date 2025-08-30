@@ -8,7 +8,7 @@ DEVICE = "cpu"  # force CPU-friendly
 DTYPE = torch.float32  # float32 works on CPU (float16 won't)
 
 # Model config
-MODEL_ID = "stabilityai/sd-turbo"
+MODEL_ID = "runwayml/stable-diffusion-v1-5"
 LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
 
 # Load pipeline
