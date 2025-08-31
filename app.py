@@ -1,77 +1,59 @@
 import gradio as gr
-from diffusers import StableDiffusionInpaintPipeline
+from diffusers import StableDiffusionPipeline
 import torch
 
-# Device and data type
-DEVICE = "cpu"
-DTYPE = torch.float32  # or torch.bfloat16 if your CPU supports
+# Device detection
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Model config
-MODEL_ID = "stabilityai/stable-diffusion-2-inpainting"
+# LoRA repository (optional fine-tuning)
 LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
 
-# Cache pipeline
-PIPELINE = None
+# Load public Stable Diffusion v1.5 model
+pipe = StableDiffusionPipeline.from_pretrained(
+    "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    torch_dtype=torch.float16 if device == "cuda" else torch.float32
+).to(device)
 
-def load_pipeline(use_lora: bool = False):
-    global PIPELINE
-    if PIPELINE is None:
-        PIPELINE = StableDiffusionInpaintPipeline.from_pretrained(
-            MODEL_ID,
-            torch_dtype=DTYPE
-        ).to(DEVICE)
+# CPU optimizations
+if device == "cpu":
+    pipe.enable_attention_slicing()
+    pipe.enable_vae_slicing()
 
-        PIPELINE.enable_attention_slicing()
-        PIPELINE.enable_vae_slicing()
-
+# Function to optionally load LoRA weights
+def apply_lora(pipe, use_lora: bool):
     if use_lora:
         try:
-            PIPELINE.load_lora_weights(LORA_REPO)
-            print("✅ LoRA weights loaded successfully.")
+            pipe.load_lora_weights(LORA_REPO)
+            print("✅ LoRA weights applied successfully.")
         except Exception as e:
-            print(f"⚠️ Could not load LoRA weights: {e}")
+            print(f"⚠️ Failed to load LoRA: {e}")
+    return pipe
 
-    return PIPELINE
-
-
-# Generate image function
-def generate_face(prompt, init_image, mask_image, steps=35, guidance=7.5, lora=False):
-    """
-    Generate or modify a face using SD 2 inpainting model.
-    - prompt: text describing the change/new face
-    - init_image: base image (PIL)
-    - mask_image: white = area to keep, black = area to inpaint
-    - steps: inference steps
-    - guidance: classifier-free guidance
-    - lora: whether to apply LoRA weights
-    """
-    pipe = load_pipeline(use_lora=lora)
-
-    result = pipe(
-        prompt=prompt,
-        image=init_image,
-        mask_image=mask_image,
-        num_inference_steps=steps,
-        guidance_scale=guidance,
-    ).images[0]
-    return result
-
+# Image generation function
+def generate_face(prompt, guidance=7.5, steps=25, use_lora=False):
+    """Generate a synthetic face with optional LoRA enhancement"""
+    pipe_with_lora = apply_lora(pipe, use_lora)
+    with torch.inference_mode():
+        image = pipe_with_lora(
+            prompt,
+            guidance_scale=guidance,
+            num_inference_steps=steps
+        ).images[0]
+    return image
 
 # Gradio UI
-iface = gr.Interface(
+face_demo = gr.Interface(
     fn=generate_face,
     inputs=[
-        gr.Textbox(label="Prompt", placeholder="e.g., Make the person smile, add glasses"),
-        gr.Image(label="Init Image", type="pil"),
-        gr.Image(label="Mask Image", type="pil"),
-        gr.Slider(10, 50, value=35, step=5, label="Inference Steps"),
-        gr.Slider(1.0, 15.0, value=7.5, step=0.5, label="Guidance Scale"),
-        gr.Checkbox(label="Apply Face LoRA", value=False),
+        gr.Textbox(label="Prompt", placeholder="e.g., Portrait of a 25-year-old woman, cinematic style"),
+        gr.Slider(1, 15, value=7.5, step=0.5, label="Guidance Scale"),
+        gr.Slider(10, 50, value=25, step=5, label="Inference Steps"),
+        gr.Checkbox(label="Apply Face LoRA", value=False)
     ],
-    outputs=gr.Image(type="pil", label="Result"),
-    title="CPU-Friendly Face Inpainting",
-    description="Edit or generate faces with Stable Diffusion 2 Inpainting. Provide an init image + mask where you want changes.",
+    outputs=gr.Image(type="pil", label="Generated Portrait"),
+    title="PersonaGen – AI Portrait Generator with LoRA",
+    description="Generate synthetic human faces. Enable LoRA for enhanced face quality."
 )
 
 if __name__ == "__main__":
-    iface.launch()
+    face_demo.launch()
