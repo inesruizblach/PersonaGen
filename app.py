@@ -6,7 +6,7 @@ import torch
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # LoRA repository (optional fine-tuning)
-LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
+LORA_REPO = "equinoXAI/Face-Detail-V2-LoRA"
 
 # Load Stable Diffusion v1.5 pipeline
 pipe = StableDiffusionPipeline.from_pretrained(
