@@ -46,10 +46,45 @@ PersonaGen/
 │   ├── young_child.png
 │   ├── senior_male.png
 │   ├── domestic_cat.png
-│   └── dragon_fantasy.png
-├── notebooks/              # Notebook demo for generating examples
-    └── demo_portraits.ipynb
+    └── dragon_fantasy.png
 ```
+
+---
+
+## ⚡ Quick Start  
+
+Follow these steps to run PersonaGen locally or on Hugging Face Spaces:
+
+1. **Clone the repository**  
+```bash
+git clone https://github.com/yourusername/PersonaGen.git
+cd PersonaGen
+```
+
+2. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+3. **Install dependencies**
+```bash
+python app.py
+```
+
+4. **Open the app in your browser**
+
+* Visit the local URL shown in the console (usually http://127.0.0.1:7860).
+
+* Or use the Share link provided by Gradio to access the app remotely.
+
+5. **Optional: Enable LoRA for enhanced faces**
+
+* Install PEFT if not already installed:
+```bash
+pip install peft
+```
+* Check the "Apply Face LoRA" box in the interface to use the LoRA weights.
+
 
 ---
 
@@ -63,7 +98,7 @@ cd PersonaGen
 pip install -r requirements.txt
 ```
 
-Or if running with conda env:
+Or using conda:
 ```bash
 conda create -n personagen python=3.10 -y
 conda activate personagen
@@ -75,27 +110,27 @@ pip install -r requirements.txt
 python app.py
 ```
 
-### Example: demo notebook to generate sample images
+#### Using LoRA (optional)
 
-1. Open Jupyter Notebook:
-
-```bash
-jupyter notebook notebooks/demo_portraits.ipynb
-```
-2. Run all cells.
-3. Example images will be saved automatically to examples/
+Ensure the peft library is installed (pip install peft).
+Enable the "Apply Face LoRA" checkbox in the app for enhanced facial features.
 
 ---
 
 ## 🖼️ Example Usage with Results & Metrics 📊
 
-| Output File         | Prompt                                       | Steps | Runtime 
-| ------------------- | -------------------------------------------- | ----- | ------- 
-| `woman_blonde.png`  | Portrait of woman with blonde hair           | 25    | 
-| `smiling_kid.png`   | Portrait of a young boy smiling              | 25    | 
-| `small_dog.png`     | Portrait of a yorkshire terrier              | 25    | 
-| `dragon_fantasy.png`| Portrait of a fantasy dragon, vibrant colors | 25    |
+| Output File          | Prompt                                       | Steps |
+| -------------------- | -------------------------------------------- | ----- |
+| `woman_blonde.png`   | Portrait of woman with blonde hair           | 25    |
+| `smiling_kid.png`    | Portrait of a young boy smiling              | 25    |
+| `small_dog.png`      | Portrait of a yorkshire terrier              | 25    |
+| `dragon_fantasy.png` | Portrait of a fantasy dragon, vibrant colors | 25    |
 
-**Notes:**
-- `Steps` = number of inference steps (default: 25).  
-- `Runtime` = measured wall-clock time per image on CPU (approx).  
+Notes:
+* Steps = number of diffusion steps (default: 25).
+* CPU runtime varies depending on hardware.
+* LoRA enhancement requires peft and is optional.
+
+
+This version is **compact, public-repo friendly**, and highlights LoRA, CPU optimization, and basic usage instructions.  
+

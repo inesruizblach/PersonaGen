@@ -8,7 +8,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 # LoRA repository (optional fine-tuning)
 LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
 
-# Load public Stable Diffusion v1.5 model
+# Load Stable Diffusion v1.5 pipeline
 pipe = StableDiffusionPipeline.from_pretrained(
     "stable-diffusion-v1-5/stable-diffusion-v1-5",
     torch_dtype=torch.float16 if device == "cuda" else torch.float32
@@ -20,23 +20,36 @@ if device == "cpu":
     pipe.enable_vae_slicing()
 
 
-# Function to optionally load LoRA weights
 def apply_lora(pipe, use_lora: bool):
+    """
+    Apply LoRA weights to the pipeline if requested.
+    Requires PEFT library.
+    """
     if use_lora:
         try:
             import peft
             pipe.load_lora_weights(LORA_REPO)
             print("✅ LoRA weights applied successfully.")
         except ModuleNotFoundError:
-            print("⚠️ PEFT library not installed. Cannot load LoRA weights.")
+            print("⚠️ PEFT not installed. Cannot load LoRA weights.")
         except Exception as e:
             print(f"⚠️ Failed to load LoRA: {e}")
     return pipe
 
 
-# Image generation function
 def generate_face(prompt, guidance=7.5, steps=25, use_lora=False):
-    """Generate a synthetic face with optional LoRA enhancement"""
+    """
+    Generate a synthetic human face from a text prompt.
+
+    Args:
+        prompt (str): Text description of the face.
+        guidance (float): Classifier-free guidance scale.
+        steps (int): Number of diffusion steps.
+        use_lora (bool): Whether to apply LoRA weights.
+
+    Returns:
+        PIL.Image: Generated face image.
+    """
     pipe_with_lora = apply_lora(pipe, use_lora)
     with torch.inference_mode():
         image = pipe_with_lora(
