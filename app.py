@@ -8,7 +8,7 @@ DEVICE = "cpu"
 DTYPE = torch.float32
 
 # Model config
-MODEL_ID = "runwayml/stable-diffusion-v1-5"
+MODEL_ID = "stabilityai/stable-diffusion-2-inpainting"
 LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
 
 # Cache pipeline
@@ -29,9 +29,11 @@ def load_pipeline(use_lora: bool = False):
     if PIPELINE is None:
         PIPELINE = StableDiffusionPipeline.from_pretrained(
             MODEL_ID,
-            torch_dtype=DTYPE,
-            safety_checker=None,  # disable safety checker for testing
+            torch_dtype=DTYPE
         ).to(DEVICE)
+
+    PIPELINE.enable_attention_slicing()
+    PIPELINE.enable_sequential_cpu_offload()
 
     if use_lora:
         try:
