@@ -3,32 +3,40 @@ from diffusers import StableDiffusionPipeline
 import torch
 
 
-# CPU device and dtype
-DEVICE = "cpu"  # force CPU-friendly
-DTYPE = torch.float32  # float32 works on CPU (float16 won't)
+# Device and data type
+DEVICE = "cpu"
+DTYPE = torch.float32
 
 # Model config
 MODEL_ID = "runwayml/stable-diffusion-v1-5"
 LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
 
-# Load pipeline
+# Cache pipeline
 PIPELINE = None
 
-def load_pipeline(use_lora=False):
+def load_pipeline(use_lora: bool = False):
     """
-    Load the Stable Diffusion Turbo pipeline on CPU.
+    Load the Stable Diffusion v1.5 pipeline on CPU.
     Optionally applies a LoRA for realistic faces.
+    
+    Args:
+        use_lora (bool): If True, apply LoRA weights for synthetic face generation.
+    
+    Returns:
+        StableDiffusionPipeline: Ready-to-use pipeline.
     """
     global PIPELINE
     if PIPELINE is None:
         PIPELINE = StableDiffusionPipeline.from_pretrained(
             MODEL_ID,
             torch_dtype=DTYPE,
+            safety_checker=None,  # disable safety checker for testing
         ).to(DEVICE)
 
     if use_lora:
         try:
-            PIPELINE.unet.load_lora_weights(LORA_REPO)
+            PIPELINE.load_lora_weights(LORA_REPO)
+            print("✅ LoRA weights loaded successfully.")
         except Exception as e:
             print(f"⚠️ Could not load LoRA weights: {e}")
 
