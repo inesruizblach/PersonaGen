@@ -33,7 +33,7 @@ def load_pipeline(use_lora: bool = False):
         ).to(DEVICE)
 
     PIPELINE.enable_attention_slicing()
-    PIPELINE.enable_sequential_cpu_offload()
+    PIPELINE.enable_vae_slicing()
 
     if use_lora:
         try:
