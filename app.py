@@ -1,11 +1,10 @@
 import gradio as gr
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionInpaintPipeline
 import torch
-
 
 # Device and data type
 DEVICE = "cpu"
-DTYPE = torch.float32
+DTYPE = torch.float32  # or torch.bfloat16 if your CPU supports
 
 # Model config
 MODEL_ID = "stabilityai/stable-diffusion-2-inpainting"
@@ -15,25 +14,15 @@ LORA_REPO = "prithivMLmods/Qwen-Image-Synthetic-Face"
 PIPELINE = None
 
 def load_pipeline(use_lora: bool = False):
-    """
-    Load the Stable Diffusion v1.5 pipeline on CPU.
-    Optionally applies a LoRA for realistic faces.
-    
-    Args:
-        use_lora (bool): If True, apply LoRA weights for synthetic face generation.
-    
-    Returns:
-        StableDiffusionPipeline: Ready-to-use pipeline.
-    """
     global PIPELINE
     if PIPELINE is None:
-        PIPELINE = StableDiffusionPipeline.from_pretrained(
+        PIPELINE = StableDiffusionInpaintPipeline.from_pretrained(
             MODEL_ID,
             torch_dtype=DTYPE
         ).to(DEVICE)
 
-    PIPELINE.enable_attention_slicing()
-    PIPELINE.enable_vae_slicing()
+        PIPELINE.enable_attention_slicing()
+        PIPELINE.enable_vae_slicing()
 
     if use_lora:
         try:
@@ -44,37 +33,44 @@ def load_pipeline(use_lora: bool = False):
 
     return PIPELINE
 
+
 # Generate image function
-def generate_face(prompt, steps=35, guidance=7.5, lora=False):
+def generate_face(prompt, init_image, mask_image, steps=35, guidance=7.5, lora=False):
     """
-    Generate a synthetic human face on CPU using SD Turbo.
-    - prompt: text prompt describing the face
-    - steps: inference steps (higher = better quality)
+    Generate or modify a face using SD 2 inpainting model.
+    - prompt: text describing the change/new face
+    - init_image: base image (PIL)
+    - mask_image: white = area to keep, black = area to inpaint
+    - steps: inference steps
     - guidance: classifier-free guidance
     - lora: whether to apply LoRA weights
     """
     pipe = load_pipeline(use_lora=lora)
-    image = pipe(
+
+    result = pipe(
         prompt=prompt,
+        image=init_image,
+        mask_image=mask_image,
         num_inference_steps=steps,
         guidance_scale=guidance,
-        height=512,
-        width=512
     ).images[0]
-    return image
+    return result
+
 
 # Gradio UI
 iface = gr.Interface(
     fn=generate_face,
     inputs=[
-        gr.Textbox(label="Prompt", placeholder="e.g., Portrait of a smiling young woman, cinematic"),
+        gr.Textbox(label="Prompt", placeholder="e.g., Make the person smile, add glasses"),
+        gr.Image(label="Init Image", type="pil"),
+        gr.Image(label="Mask Image", type="pil"),
         gr.Slider(10, 50, value=35, step=5, label="Inference Steps"),
         gr.Slider(1.0, 15.0, value=7.5, step=0.5, label="Guidance Scale"),
-        gr.Checkbox(label="Apply Face LoRA", value=False)
+        gr.Checkbox(label="Apply Face LoRA", value=False),
     ],
-    outputs=gr.Image(type="pil", label="Generated Face"),
-    title="CPU-Friendly Face Generator",
-    description="Generate realistic human faces using Stable Diffusion Turbo on CPU. Enable LoRA for better face quality."
+    outputs=gr.Image(type="pil", label="Result"),
+    title="CPU-Friendly Face Inpainting",
+    description="Edit or generate faces with Stable Diffusion 2 Inpainting. Provide an init image + mask where you want changes.",
 )
 
 if __name__ == "__main__":
