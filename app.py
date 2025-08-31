@@ -27,7 +27,6 @@ def apply_lora(pipe, use_lora: bool):
     """
     if use_lora:
         try:
-            import peft
             pipe.load_lora_weights(LORA_REPO)
             print("✅ LoRA weights applied successfully.")
         except ModuleNotFoundError:
