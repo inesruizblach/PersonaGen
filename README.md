@@ -128,9 +128,7 @@ Enable the "Apply Face LoRA" checkbox in the app for enhanced facial features.
 
 Notes:
 * Steps = number of diffusion steps (default: 25).
-* CPU runtime varies depending on hardware.
+* CPU runtime varies depending on hardware (around 372.8s).
 * LoRA enhancement requires peft and is optional.
 
-
 This version is **compact, public-repo friendly**, and highlights LoRA, CPU optimization, and basic usage instructions.  
-

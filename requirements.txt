@@ -11,6 +11,7 @@ safetensors
 transformers
 tokenizers
 huggingface-hub
+peft
 
 # Interface
 gradio
