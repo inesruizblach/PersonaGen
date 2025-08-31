@@ -19,15 +19,20 @@ if device == "cpu":
     pipe.enable_attention_slicing()
     pipe.enable_vae_slicing()
 
+
 # Function to optionally load LoRA weights
 def apply_lora(pipe, use_lora: bool):
     if use_lora:
         try:
+            import peft
             pipe.load_lora_weights(LORA_REPO)
             print("✅ LoRA weights applied successfully.")
+        except ModuleNotFoundError:
+            print("⚠️ PEFT library not installed. Cannot load LoRA weights.")
         except Exception as e:
             print(f"⚠️ Failed to load LoRA: {e}")
     return pipe
+
 
 # Image generation function
 def generate_face(prompt, guidance=7.5, steps=25, use_lora=False):
@@ -41,6 +46,7 @@ def generate_face(prompt, guidance=7.5, steps=25, use_lora=False):
         ).images[0]
     return image
 
+
 # Gradio UI
 face_demo = gr.Interface(
     fn=generate_face,
@@ -52,7 +58,7 @@ face_demo = gr.Interface(
     ],
     outputs=gr.Image(type="pil", label="Generated Portrait"),
     title="PersonaGen – AI Portrait Generator with LoRA",
-    description="Generate synthetic human faces. Enable LoRA for enhanced face quality."
+    description="Generate synthetic human faces. Enable LoRA for enhanced face quality (requires PEFT)."
 )
 
 if __name__ == "__main__":
