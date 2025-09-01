@@ -6,7 +6,7 @@ import torch
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # LoRA repository (optional fine-tuning)
-LORA_REPO = "emilianovilas/portraits"
+LORA_REPO = "latent-consistency/lcm-lora-sdv1-5"
 
 # Load Stable Diffusion v1.5 pipeline
 pipe = StableDiffusionPipeline.from_pretrained(
