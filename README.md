@@ -42,11 +42,9 @@ PersonaGen/
 ├── README.md               # Project documentation
 ├── .gitignore
 ├── examples/               # Pre-generated demo portraits
-│   ├── adult_female.png
-│   ├── young_child.png
-│   ├── senior_male.png
-│   ├── domestic_cat.png
-    └── dragon_fantasy.png
+│   ├── woman_blonde.png
+│   ├── smiling_kid.png
+    └── young_male.png
 ```
 
 ---
@@ -123,8 +121,7 @@ Enable the "Apply Face LoRA" checkbox in the app for enhanced facial features.
 | -------------------- | -------------------------------------------- | ----- |
 | `woman_blonde.png`   | Portrait of woman with blonde hair           | 25    |
 | `smiling_kid.png`    | Portrait of a young boy smiling              | 25    |
-| `small_dog.png`      | Portrait of a yorkshire terrier              | 25    |
-| `dragon_fantasy.png` | Portrait of a fantasy dragon, vibrant colors | 25    |
+| `young_male.png`      | Portrait of a young brunette male           | 25    |
 
 Notes:
 * Steps = number of diffusion steps (default: 25).
