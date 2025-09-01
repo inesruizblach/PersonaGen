@@ -121,7 +121,7 @@ Enable the "Apply Face LoRA" checkbox in the app for enhanced facial features.
 | -------------------- | -------------------------------------------- | ----- |
 | `woman_blonde.png`   | Portrait of woman with blonde hair           | 25    |
 | `smiling_kid.png`    | Portrait of a young boy smiling              | 25    |
-| `young_male.png`      | Portrait of a young brunette male           | 25    |
+| `young_male.png`     | Portrait of a young brunette male           | 25    |
 
 Notes:
 * Steps = number of diffusion steps (default: 25).

@@ -10,7 +10,7 @@ LORA_REPO = "emilianovilas/portraits"
 
 # Load Stable Diffusion v1.5 pipeline
 pipe = StableDiffusionPipeline.from_pretrained(
-    "stable-diffusion-v1-5/stable-diffusion-v1-5",
+    "runwayml/stable-diffusion-v1-5",
     torch_dtype=torch.float16 if device == "cuda" else torch.float32
 ).to(device)
 
