@@ -3,7 +3,7 @@ title: "PersonaGen"
 colorFrom: "blue"
 colorTo: "green"
 sdk: "gradio"
-sdk_version: "4.44.1"
+sdk_version: "5.44.1"
 app_file: "app.py"
 pinned: true
 ---
@@ -119,13 +119,13 @@ Enable the "Apply Face LoRA" checkbox in the app for enhanced facial features.
 
 | Output File          | Prompt                                       | Steps |
 | -------------------- | -------------------------------------------- | ----- |
-| `woman_blonde.png`   | Portrait of woman with blonde hair           | 25    |
-| `smiling_kid.png`    | Portrait of a young boy smiling              | 25    |
-| `young_male.png`     | Portrait of a young brunette male           | 25    |
+| `woman_blonde.png`   | Modern portrait of woman with blonde hair    | 25    |
+| `smiling_kid.png`    | Modern portrait of a young boy smiling       | 25    |
+| `young_male.png`     | Modern portrait of a young brunette male     | 25    |
 
 Notes:
 * Steps = number of diffusion steps (default: 25).
-* CPU runtime varies depending on hardware (around 372.8s).
+* CPU runtime varies depending on hardware (around 451.4s).
 * LoRA enhancement requires peft and is optional.
 
 This version is **compact, public-repo friendly**, and highlights LoRA, CPU optimization, and basic usage instructions.  
