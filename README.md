@@ -33,6 +33,22 @@ The system takes a text prompt as input and produces high-quality faces that can
 
 ---
 
+## 🛠️ Tech Stack  
+
+- **Python 3.10+** – primary language for AI development and web app.
+- **PyTorch** – tensor computations, model execution on CPU/GPU. ([pytorch.org](https://pytorch.org))
+- **Hugging Face Diffusers** – Stable Diffusion pipelines, model management, inference. ([github.com/huggingface/diffusers](https://github.com/huggingface/diffusers))
+- **Gradio** – easy-to-use UI for running ML models in a web browser. ([gradio.app](https://gradio.app))
+- **PEFT (Parameter-Efficient Fine-Tuning)** – apply LoRA weights to enhance models with minimal compute. ([huggingface.co/docs/peft](https://huggingface.co/docs/peft/index))
+- **LoRA Weights for Stable Diffusion** – optional fine-tuning for realistic facial features.
+- **Additional Python Libraries**:
+  - `numpy` – numerical operations.
+  - `Pillow` – image creation and manipulation.
+  - `torchvision` – image preprocessing and utilities.
+  - `ipywidgets` – interactive notebook controls (optional for demos).
+
+---
+
 ## 🗂️ Repository Structure  
 
 ```text
@@ -64,7 +80,7 @@ cd PersonaGen
 pip install -r requirements.txt
 ```
 
-3. **Install dependencies**
+3. **Run the app**
 ```bash
 python app.py
 ```
@@ -115,13 +131,35 @@ Enable the "Apply Face LoRA" checkbox in the app for enhanced facial features.
 
 ---
 
-## 🖼️ Example Usage with Results & Metrics 📊
+## 🎨 Usage
 
-| Output File          | Prompt                                       | Steps |
-| -------------------- | -------------------------------------------- | ----- |
-| `woman_blonde.png`   | Modern portrait of woman with blonde hair    | 25    |
-| `smiling_kid.png`    | Modern portrait of a young boy smiling       | 25    |
-| `young_male.png`     | Modern portrait of a young brunette male     | 25    |
+1. Launch the app with:
+```bash
+python app.py
+```
+2. Enter a text prompt in the Gradio interface.
+Example prompts:
+* `Modern portrait of woman with blonde hair, smiling, realistic`
+* `Stylised portrait of a young boy smiling, beach background, watercolor style`
+* `Portrait of a young male character, smiling, vibrant colours`
+
+3. Adjust settings:
+* **Steps**: number of diffusion steps (default: 25)
+* **Style**: choose from photorealistic, watercolor, comic, cyberpunk, oil painting
+* **LoRA**: check the box to enhance facial features (requires `peft`)
+
+4. Generated images are displayed in the web UI and can be downloaded by clicking the image download icon.
+---
+
+## 🖼️ Example Portraits
+
+| Prompt                                                         | Result with LoRA                                | Result without LoRA                                |
+| -------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- |
+| *Modern portrait of woman with blonde hair, smiling, realistic* | <img src="examples/blonde_woman.png" width="200"/> | <img src="examples/blonde_woman_no_lora.png" width="200"/> |
+| *Stylised portrait of a young boy smiling, beach background, watercolor* | <img src="examples/young_kid_smiling.png" width="200"/> | <img src="examples/young_kid_smiling_no_lora.png" width="200"/> |
+
+*Caption: Images in the "Result with LoRA" column include LoRA fine-tuning for enhanced facial details, while "Result without LoRA" shows the base Stable Diffusion output.*
+
 
 Notes:
 * Steps = number of diffusion steps (default: 25).
@@ -129,3 +167,13 @@ Notes:
 * LoRA enhancement requires peft and is optional.
 
 This version is **compact, public-repo friendly**, and highlights LoRA, CPU optimization, and basic usage instructions.  
+
+---
+
+## 🧩 References (Models & Weights)
+
+- **Stable Diffusion v1.5** – base text-to-image model  
+  [https://huggingface.co/runwayml/stable-diffusion-v1-5](https://huggingface.co/runwayml/stable-diffusion-v1-5)
+
+- **LCM LoRA for SD v1.5** – optional LoRA weights for enhanced faces  
+  [https://huggingface.co/latent-consistency/lcm-lora-sdv1-5](https://huggingface.co/latent-consistency/lcm-lora-sdv1-5)
