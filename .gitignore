@@ -1,7 +1,37 @@
-pycache/
-*.pyc
-.venv/
-.env
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
 .ipynb_checkpoints
-outputs/
+
+# VSCode settings
+.vscode/
+
+# Mac system files
+.DS_Store
+
+# Python virtual environments
+venv/
+env/
+.env/
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Hugging Face / model caches
+cache/
 models/
+*.ckpt
+*.safetensors
+
+# Coverage reports
+htmlcov/
+.coverage
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
